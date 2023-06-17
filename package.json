@@ -1,5 +1,5 @@
 {
-  "name": "kushki_test",
+  "name": "kushki_arib",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,7 +10,6 @@
     "postinstall": "node patch.js"
   },
   "dependencies": {
-    "@kushki/js": "^1.36.0",
     "autoprefixer": "10.4.14",
     "eslint": "8.43.0",
     "eslint-config-next": "13.4.6",
