@@ -3,25 +3,56 @@ import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'] })
 
+const buildFormData = (formElements) => {
+  const {
+    number: cardNumber, name: name, expiry_month: expiryMonth, expiry_year: expiryYear, cvc: cvc,
+  } = formElements
+
+  const cardInfo = {
+    cvc: cvc.value,
+    expiryMonth: expiryMonth.value,
+    expiryYear: expiryYear.value,
+    name: name.value,
+    cardNumber: cardNumber.value
+  }
+
+  const subscriptionInfo = { cardInfo, amount: 14.99, currency: "USD" }
+  return subscriptionInfo
+}
+
 export default function Home() {
+  async function getSubscriptionToken(subscriptionInfo) {
+    const res = await fetch('/api/subscription-token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(subscriptionInfo),
+    })
+    const data = await res.json()
+    console.log({ data })
+    return data.token
+  }
 
-  const pay = (evt) => {
-    const {
-      cvc: cvc,
-      expiry_month: expiryMonth,
-      expiry_year: expiryYear,
-      name: name,
-      number: cardNumber
-    } = evt.target.form.elements
+  async function createSubscription(subscriptionWithToken) {
+    const res = await fetch('/api/create-subscription', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(subscriptionWithToken),
+    })
+    const data = await res.json()
+    console.log({ data })
+    return data
+  }
 
-    console.log({
-      cvc:cvc.value,
-      expiryMonth:expiryMonth.value,
-      expiryYear:expiryYear.value,
-      name:name.value,
-      cardNumber:cardNumber.value
-    });
+  const pay = async (evt) => {
+    const subscriptionInfo = buildFormData(evt.target.form.elements)
+
     evt.preventDefault()
+    const token = await getSubscriptionToken(subscriptionInfo)
+    await createSubscription({ ...subscriptionInfo, token })
   }
 
   return (
